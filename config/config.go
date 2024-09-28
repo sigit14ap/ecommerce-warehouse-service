@@ -8,13 +8,14 @@ import (
 )
 
 type Config struct {
-	DatabaseHost     string
-	DatabasePort     string
-	DatabaseUser     string
-	DatabasePassword string
-	DatabaseName     string
-	AppSecret        string
-	ShopServiceUrl   string
+	DatabaseHost      string
+	DatabasePort      string
+	DatabaseUser      string
+	DatabasePassword  string
+	DatabaseName      string
+	AppSecret         string
+	ShopServiceUrl    string
+	ProductServiceUrl string
 }
 
 func LoadConfig() *Config {
@@ -24,13 +25,14 @@ func LoadConfig() *Config {
 	}
 
 	config := &Config{
-		DatabaseHost:     os.Getenv("DATABASE_HOST"),
-		DatabasePort:     os.Getenv("DATABASE_PORT"),
-		DatabaseUser:     os.Getenv("DATABASE_USER"),
-		DatabasePassword: os.Getenv("DATABASE_PASSWORD"),
-		DatabaseName:     os.Getenv("DATABASE_NAME"),
-		AppSecret:        os.Getenv("APP_SECRET"),
-		ShopServiceUrl:   os.Getenv("SHOP_SERVICE_BASE_URL"),
+		DatabaseHost:      os.Getenv("DATABASE_HOST"),
+		DatabasePort:      os.Getenv("DATABASE_PORT"),
+		DatabaseUser:      os.Getenv("DATABASE_USER"),
+		DatabasePassword:  os.Getenv("DATABASE_PASSWORD"),
+		DatabaseName:      os.Getenv("DATABASE_NAME"),
+		AppSecret:         os.Getenv("APP_SECRET"),
+		ShopServiceUrl:    os.Getenv("SHOP_SERVICE_BASE_URL"),
+		ProductServiceUrl: os.Getenv("PRODUCT_SERVICE_BASE_URL"),
 	}
 
 	return config

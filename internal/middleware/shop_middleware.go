@@ -8,7 +8,7 @@ import (
 	"github.com/sigit14ap/warehouse-service/internal/services"
 )
 
-func ShopMiddleware(shopClient *services.ShopClient) gin.HandlerFunc {
+func ShopMiddleware(shopService *services.ShopService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		token := context.GetHeader("Authorization")
 		if token == "" {
@@ -17,7 +17,7 @@ func ShopMiddleware(shopClient *services.ShopClient) gin.HandlerFunc {
 			return
 		}
 
-		shopDetail, err := shopClient.ShopDetail(token)
+		shopDetail, err := shopService.ShopDetail(token)
 		if err != nil {
 			helpers.ErrorResponse(context, http.StatusUnauthorized, "Shop does not allowed")
 			return

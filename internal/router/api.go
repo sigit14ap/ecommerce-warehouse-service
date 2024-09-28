@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(warehouseHandler *delivery.WarehouseHandler, shopClient *services.ShopClient) *gin.Engine {
+func NewRouter(warehouseHandler *delivery.WarehouseHandler, stockHandler *delivery.StockHandler, shopService *services.ShopService) *gin.Engine {
 	router := gin.New()
 	v1 := router.Group("/api/v1")
 	v1.Use(middleware.ServiceMiddleware())
@@ -17,6 +17,14 @@ func NewRouter(warehouseHandler *delivery.WarehouseHandler, shopClient *services
 	{
 		warehouse.GET("/", warehouseHandler.GetAll)
 		warehouse.PATCH("/:id/status", warehouseHandler.SetStatus)
+	}
+
+	shop := v1.Group("stocks")
+	shop.Use(middleware.ShopMiddleware(shopService))
+	{
+		shop.GET("/warehouse/:id", stockHandler.GetStockByWarehouse)
+		shop.POST("/send-stock", stockHandler.SendStock)
+		shop.POST("/transfer-stock", stockHandler.TransferStock)
 	}
 
 	return router

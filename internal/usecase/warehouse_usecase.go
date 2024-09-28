@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/sigit14ap/warehouse-service/internal/domain"
 	repository "github.com/sigit14ap/warehouse-service/internal/repository/mysql"
 )
@@ -11,19 +13,23 @@ type WarehouseUsecase interface {
 }
 
 type warehouseUsecase struct {
-	warehouseRepo repository.WarehouseRepository
+	warehouseRepository repository.WarehouseRepository
+	stockRepository     repository.StockRepository
 }
 
-func NewWarehouseUsecase(warehouseRepository repository.WarehouseRepository) WarehouseUsecase {
-	return &warehouseUsecase{warehouseRepository}
+func NewWarehouseUsecase(warehouseRepository repository.WarehouseRepository, stockRepository repository.StockRepository) WarehouseUsecase {
+	return &warehouseUsecase{
+		warehouseRepository: warehouseRepository,
+		stockRepository:     stockRepository,
+	}
 }
 
 func (uc *warehouseUsecase) GetAll() ([]domain.Warehouse, error) {
-	return uc.warehouseRepo.GetAll()
+	return uc.warehouseRepository.GetAll()
 }
 
 func (uc *warehouseUsecase) SetStatus(warehouseID uint64) error {
-	warehouse, err := uc.warehouseRepo.GetByID(warehouseID)
+	warehouse, err := uc.warehouseRepository.GetByID(warehouseID)
 
 	if err != nil {
 		return err
@@ -33,9 +39,19 @@ func (uc *warehouseUsecase) SetStatus(warehouseID uint64) error {
 
 	if warehouse.IsActive {
 		isActive = false
+
+		totalStock, err := uc.stockRepository.CountTotalStockWarehouse(warehouseID)
+
+		if err != nil {
+			return err
+		}
+
+		if totalStock > 0 {
+			return errors.New("cannot deactivate warehouse due to stocks available")
+		}
 	} else {
 		isActive = true
 	}
 
-	return uc.warehouseRepo.SetStatus(warehouseID, isActive)
+	return uc.warehouseRepository.SetStatus(warehouseID, isActive)
 }

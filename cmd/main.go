@@ -40,20 +40,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = db.AutoMigrate(&domain.Warehouse{})
+	err = db.AutoMigrate(&domain.Warehouse{}, &domain.Stock{})
 	if err != nil {
 		log.Fatalf("failed to auto-migrate Warehouse model: %v", err)
 	}
 
 	seedWarehouseData(db, log)
 
-	shopClient := services.NewShopClient(cfg.ShopServiceUrl, cfg.AppSecret)
+	shopService := services.NewShopService(cfg.ShopServiceUrl, cfg.AppSecret)
+	productService := services.NewProductService(cfg.ProductServiceUrl, cfg.AppSecret)
 
-	productRepo := repository.NewWarehouseRepository(db)
-	productService := usecase.NewWarehouseUsecase(productRepo)
-	productHandler := delivery.NewWarehouseHandler(productService)
+	stockRepo := repository.NewStockRepository(db)
+	stockUsecase := usecase.NewStockUsecase(stockRepo)
+	stockHandler := delivery.NewStockHandler(stockUsecase, productService)
 
-	router := router.NewRouter(productHandler, shopClient)
+	warehouseRepo := repository.NewWarehouseRepository(db)
+	warehouseUsecase := usecase.NewWarehouseUsecase(warehouseRepo, stockRepo)
+	warehouseHandler := delivery.NewWarehouseHandler(warehouseUsecase)
+
+	router := router.NewRouter(warehouseHandler, stockHandler, shopService)
 
 	log.Info(router.Run(":" + os.Getenv("APP_PORT")))
 }

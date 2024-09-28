@@ -3,34 +3,27 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sigit14ap/warehouse-service/internal/delivery/dto"
 )
 
-type ShopService struct {
+type ProductService struct {
 	BaseURL      string
 	ServiceToken string
 }
 
-func NewShopService(baseURL, token string) *ShopService {
-	return &ShopService{
+func NewProductService(baseURL, token string) *ProductService {
+	return &ProductService{
 		BaseURL:      baseURL,
 		ServiceToken: token,
 	}
 }
 
-type ApiResponse struct {
-	Data    interface{} `json:"data"`
-	Message string      `json:"message"`
-}
-
-type ShopDetailResponse struct {
-	ID    uint64 `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-func (c *ShopService) CallShopService(method, endpoint string, authToken string, payload interface{}) (*http.Response, error) {
+func (c *ProductService) CallProductService(method, endpoint string, authToken string, payload interface{}) (*http.Response, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseURL, endpoint)
 
 	var jsonData []byte
@@ -71,31 +64,38 @@ func (c *ShopService) CallShopService(method, endpoint string, authToken string,
 	}
 }
 
-func (c *ShopService) ShopDetail(authToken string) (*ShopDetailResponse, error) {
-	response, err := c.CallShopService("GET", "api/v1/shop/me", authToken, nil)
+func (c *ProductService) ProductDetail(context *gin.Context, productID uint64) (*dto.ProductDetailResponse, error) {
+	token := context.GetHeader("Authorization")
+	if token == "" {
+		return nil, errors.New("Authorization required")
+	}
+
+	url := fmt.Sprintf("%s%d", "api/v1/shop/products/", productID)
+	response, err := c.CallProductService("GET", url, token, nil)
+
 	if err != nil {
 		return nil, err
 	}
 
 	defer response.Body.Close()
 
-	var apiResponse ApiResponse
+	var apiResponse dto.ApiResponse
 	if err := json.NewDecoder(response.Body).Decode(&apiResponse); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	shopData, ok := apiResponse.Data.(map[string]interface{})
+	productData, ok := apiResponse.Data.(map[string]interface{})
 	if !ok {
 		return nil, fmt.Errorf("unexpected data format")
 	}
 
-	shopDetail, err := json.Marshal(shopData["shop"])
+	productDetail, err := json.Marshal(productData["shop"])
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal shop data: %w", err)
 	}
 
-	var shop ShopDetailResponse
-	if err := json.Unmarshal(shopDetail, &shop); err != nil {
+	var shop dto.ProductDetailResponse
+	if err := json.Unmarshal(productDetail, &shop); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal shop data: %w", err)
 	}
 
