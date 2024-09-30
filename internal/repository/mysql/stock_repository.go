@@ -44,7 +44,7 @@ func (repository *stockRepository) GetStockByWarehouse(warehouseID uint64) ([]do
 func (repository *stockRepository) CountTotalStockWarehouse(warehouseID uint64) (int64, error) {
 	var totalStock int64
 
-	err := repository.db.Table("stocks").Select("SUM(quantity)").Where("warehouse_id = ?", warehouseID).Scan(&totalStock).Error
+	err := repository.db.Table("stocks").Select("IFNULL(SUM(quantity), 0)").Where("warehouse_id = ?", warehouseID).Scan(&totalStock).Error
 
 	if err != nil {
 		return 0, err
