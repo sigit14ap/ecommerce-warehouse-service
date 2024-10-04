@@ -71,4 +71,5 @@ jobs:
           --platform managed \
           --region asia-southeast2 \
           --allow-unauthenticated \
-          --add-cloudsql-instances cloud-devops-learn:asia-southeast2:cloud-devops-learn
+          --vpc-connector=vpc-cloud-learn \
+          --add-cloudsql-instances=cloud-devops-learn:asia-southeast2:cloud-devops-learn
