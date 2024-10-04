@@ -1,0 +1,73 @@
+name: Warehouse Service
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_PORT: ${{ secrets.APP_PORT }}
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      SHOP_SERVICE_BASE_URL: ${{ secrets.SHOP_SERVICE_BASE_URL }}
+      PRODUCT_SERVICE_BASE_URL: ${{ secrets.PRODUCT_SERVICE_BASE_URL }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Create .env file
+      run: |
+        echo "APP_PORT=${{ env.APP_PORT }}" >> .env
+        echo "APP_SECRET=${{ env.APP_SECRET }}" >> .env
+        echo "DATABASE_HOST=${{ env.DATABASE_HOST }}" >> .env
+        echo "DATABASE_PORT=${{ env.DATABASE_PORT }}" >> .env
+        echo "DATABASE_USER=${{ env.DATABASE_USER }}" >> .env
+        echo "DATABASE_PASSWORD=${{ env.DATABASE_PASSWORD }}" >> .env
+        echo "DATABASE_NAME=${{ env.DATABASE_NAME }}" >> .env
+        echo "SHOP_SERVICE_BASE_URL=${{ env.SHOP_SERVICE_BASE_URL }}" >> .env
+        echo "PRODUCT_SERVICE_BASE_URL=${{ env.PRODUCT_SERVICE_BASE_URL }}" >> .env
+
+    - name: Set up Google Cloud authentication
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+    - name: Set up Google Cloud authentication
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      run: |
+        echo "$GOOGLE_APPLICATION_CREDENTIALS" > $HOME/gcp-key.json
+        gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
+        gcloud config set project cloud-devops-learn
+
+    - name: Configure Docker to use gcloud as a credential helper
+      run: |
+        gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+
+    - name: Build Docker image
+      run: |
+        docker build -t asia-southeast2-docker.pkg.dev/cloud-devops-learn/ecommerce-microservices-repo/warehouse-service:$GITHUB_SHA .
+        docker push asia-southeast2-docker.pkg.dev/cloud-devops-learn/ecommerce-microservices-repo/warehouse-service:$GITHUB_SHA
+
+    # - name: Run Unit Tests
+    #   run:  go test ./tests/units/...
+
+    # - name: Run Integration Tests
+    #   run:  go test ./tests/integrations/...
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy warehouse-service \
+          --image asia-southeast2-docker.pkg.dev/cloud-devops-learn/ecommerce-microservices-repo/warehouse-service:$GITHUB_SHA \
+          --platform managed \
+          --region asia-southeast2 \
+          --allow-unauthenticated

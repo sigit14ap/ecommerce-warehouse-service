@@ -15,6 +15,8 @@ COPY --from=builder /warehouse-service .
 
 COPY .env .
 
-EXPOSE 8003
+# EXPOSE 8003
+# Cloud Run expects the app to listen on port 8080
+EXPOSE 8080
 
 CMD ["./warehouse-service"]
