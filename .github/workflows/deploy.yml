@@ -70,4 +70,5 @@ jobs:
           --image asia-southeast2-docker.pkg.dev/cloud-devops-learn/ecommerce-microservices-repo/warehouse-service:$GITHUB_SHA \
           --platform managed \
           --region asia-southeast2 \
-          --allow-unauthenticated
+          --allow-unauthenticated \
+          --add-cloudsql-instances  cloud-devops-learn
