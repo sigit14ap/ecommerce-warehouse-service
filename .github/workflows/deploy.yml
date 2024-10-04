@@ -64,10 +64,6 @@ jobs:
     # - name: Run Integration Tests
     #   run:  go test ./tests/integrations/...
 
-    - name: Assign the roles/iam.serviceAccountUser Role
-      run: |
-        gcloud iam service-accounts add-iam-policy-binding 224645471683-compute@developer.gserviceaccount.com --member="serviceAccount:224645471683-compute@developer.gserviceaccount.com" --role="roles/iam.serviceAccountUser"
-
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy warehouse-service \
