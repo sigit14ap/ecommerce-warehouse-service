@@ -26,13 +26,7 @@ func main() {
 		log.Fatal("Logger failed to started")
 	}
 
-	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		cfg.DatabaseUser,
-		cfg.DatabasePassword,
-		cfg.DatabaseHost,
-		cfg.DatabaseName,
-	)
+	dsn := fmt.Sprintf("%s:%s@unix(/cloudsql/%s)/%s", cfg.DatabaseUser, cfg.DatabasePassword, cfg.DatabaseHost, cfg.DatabaseName)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
