@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	DatabaseHost      string
+	DatabasePort      string
 	DatabaseUser      string
 	DatabasePassword  string
 	DatabaseName      string
@@ -25,6 +26,7 @@ func LoadConfig() *Config {
 
 	config := &Config{
 		DatabaseHost:      os.Getenv("DATABASE_HOST"),
+		DatabasePort:      os.Getenv("DATABASE_PORT"),
 		DatabaseUser:      os.Getenv("DATABASE_USER"),
 		DatabasePassword:  os.Getenv("DATABASE_PASSWORD"),
 		DatabaseName:      os.Getenv("DATABASE_NAME"),
