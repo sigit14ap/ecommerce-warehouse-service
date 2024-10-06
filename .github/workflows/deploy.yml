@@ -13,7 +13,6 @@ jobs:
       APP_PORT: ${{ secrets.APP_PORT }}
       APP_SECRET: ${{ secrets.APP_SECRET }}
       DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
       DATABASE_USER: ${{ secrets.DATABASE_USER }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
@@ -29,7 +28,6 @@ jobs:
         echo "APP_PORT=${{ env.APP_PORT }}" >> .env
         echo "APP_SECRET=${{ env.APP_SECRET }}" >> .env
         echo "DATABASE_HOST=${{ env.DATABASE_HOST }}" >> .env
-        echo "DATABASE_PORT=${{ env.DATABASE_PORT }}" >> .env
         echo "DATABASE_USER=${{ env.DATABASE_USER }}" >> .env
         echo "DATABASE_PASSWORD=${{ env.DATABASE_PASSWORD }}" >> .env
         echo "DATABASE_NAME=${{ env.DATABASE_NAME }}" >> .env
